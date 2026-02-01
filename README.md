@@ -1,43 +1,47 @@
-# Astro Starter Kit: Minimal
+# HowTo
 
-```sh
-bun create astro@latest -- --template minimal
+A minimal technical tutorials and guides site built with Astro.
+
+## Tech Stack
+
+- **Framework**: Astro 5.x
+- **Styling**: Tailwind CSS v4
+- **Icons**: Lucide
+- **Package Manager**: Bun
+
+## Getting Started
+
+```bash
+# Install dependencies
+bun install
+
+# Start development server
+bun dev
+
+# Build for production
+bun build
+
+# Preview production build
+bun preview
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Project Structure
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
+```
 /
-├── public/
+├── public/           # Static assets
 ├── src/
-│   └── pages/
-│       └── index.astro
+│   ├── components/   # Reusable components
+│   ├── content/      # Markdown tutorials
+│   ├── layouts/      # Layout components
+│   ├── pages/        # Routes
+│   └── styles/       # Global styles
 └── package.json
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## Features
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `bun install`             | Installs dependencies                            |
-| `bun dev`             | Starts local dev server at `localhost:4321`      |
-| `bun build`           | Build your production site to `./dist/`          |
-| `bun preview`         | Preview your build locally, before deploying     |
-| `bun astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `bun astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+- Dark/light theme toggle
+- Collapsible table of contents with auto-expand on scroll
+- Content collections with Zod validation
+- Syntax highlighting for code blocks
