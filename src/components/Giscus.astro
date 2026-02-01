@@ -3,7 +3,7 @@ import { MessageSquare, RefreshCw } from '@lucide/astro';
 
 const repo = import.meta.env.GISCUS_REPO || "";
 const repoId = import.meta.env.GISCUS_REPO_ID || "";
-const category = import.meta.env.GISCUS_CATEGORY || "General";
+const category = import.meta.env.GISCUS_CATEGORY || "Comments";
 const categoryId = import.meta.env.GISCUS_CATEGORY_ID || "";
 ---
 
@@ -36,8 +36,8 @@ const categoryId = import.meta.env.GISCUS_CATEGORY_ID || "";
 	data-mapping="pathname"
 	data-strict="0"
 	data-reactions-enabled="0"
-	data-emit-metadata="1"
-	data-input-position="bottom"
+	data-emit-metadata="0"
+	data-input-position="top"
 	data-theme="preferred_color_scheme"
 	data-lang="en"
 	crossorigin="anonymous"
@@ -45,8 +45,6 @@ const categoryId = import.meta.env.GISCUS_CATEGORY_ID || "";
 ></script>
 
 <script>
-	let lastCommentCount = 0;
-	
 	function updateGiscusTheme() {
 		const iframe = document.querySelector("iframe.giscus-frame");
 		if (!iframe || !(iframe instanceof HTMLIFrameElement)) return;
@@ -77,14 +75,14 @@ const categoryId = import.meta.env.GISCUS_CATEGORY_ID || "";
 		const newScript = document.createElement("script");
 		newScript.src = "https://giscus.app/client.js";
 		newScript.setAttribute("data-repo", "jr4dh3y/howto");
-		newScript.setAttribute("data-repo-id", "R_kgDON4k1kA");
-		newScript.setAttribute("data-category", "General");
-		newScript.setAttribute("data-category-id", "DIC_kwDON4k1kM4CnGlB");
+		newScript.setAttribute("data-repo-id", "R_kgDORGLTFA");
+		newScript.setAttribute("data-category", "Comments");
+		newScript.setAttribute("data-category-id", "DIC_kwDORGLTFM4C1uzh");
 		newScript.setAttribute("data-mapping", "pathname");
 		newScript.setAttribute("data-strict", "0");
-		newScript.setAttribute("data-reactions-enabled", "0");
-		newScript.setAttribute("data-emit-metadata", "1");
-		newScript.setAttribute("data-input-position", "bottom");
+		newScript.setAttribute("data-reactions-enabled", "1");
+		newScript.setAttribute("data-emit-metadata", "0");
+		newScript.setAttribute("data-input-position", "top");
 		newScript.setAttribute("data-theme", "preferred_color_scheme");
 		newScript.setAttribute("data-lang", "en");
 		newScript.setAttribute("crossorigin", "anonymous");
@@ -112,24 +110,6 @@ const categoryId = import.meta.env.GISCUS_CATEGORY_ID || "";
 	const toggle = document.getElementById("theme-toggle");
 	toggle?.addEventListener("click", () => {
 		setTimeout(updateGiscusTheme, 100);
-	});
-
-	window.addEventListener("message", (event) => {
-		if (event.origin !== "https://giscus.app") return;
-		
-		if (event.data?.giscus?.discussion) {
-			updateGiscusTheme();
-			
-			const commentCount = event.data.giscus.discussion.totalCommentCount || 0;
-			if (commentCount > lastCommentCount && lastCommentCount > 0) {
-				setTimeout(reloadGiscus, 2000);
-			}
-			lastCommentCount = commentCount;
-		}
-		
-		if (event.data?.giscus?.commentCreated) {
-			setTimeout(reloadGiscus, 1500);
-		}
 	});
 </script>
 
