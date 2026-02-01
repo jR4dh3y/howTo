@@ -1,0 +1,107 @@
+---
+import { MessageSquare } from '@lucide/astro';
+
+const repo = import.meta.env.GISCUS_REPO || "";
+const repoId = import.meta.env.GISCUS_REPO_ID || "";
+const category = import.meta.env.GISCUS_CATEGORY || "General";
+const categoryId = import.meta.env.GISCUS_CATEGORY_ID || "";
+---
+
+<div class="comments-section">
+	<div class="comments-header">
+		<MessageSquare class="w-5 h-5 text-[var(--accent)]" />
+		<h3 class="text-lg font-medium text-[var(--fg)]">Comments</h3>
+		<span class="text-xs text-[var(--muted)]">Powered by Giscus</span>
+	</div>
+	<div class="comments-container">
+		<div class="giscus"></div>
+	</div>
+</div>
+
+<script 
+	src="https://giscus.app/client.js"
+	data-repo={repo}
+	data-repo-id={repoId}
+	data-category={category}
+	data-category-id={categoryId}
+	data-mapping="pathname"
+	data-strict="0"
+	data-reactions-enabled="1"
+	data-emit-metadata="0"
+	data-input-position="bottom"
+	data-theme="preferred_color_scheme"
+	data-lang="en"
+	crossorigin="anonymous"
+	async
+></script>
+
+<script>
+	function updateGiscusTheme() {
+		const iframe = document.querySelector("iframe.giscus-frame");
+		if (!iframe || !(iframe instanceof HTMLIFrameElement)) return;
+
+		const isDark = document.documentElement.classList.contains("dark");
+		const theme = isDark ? "dark" : "light";
+
+		iframe.contentWindow?.postMessage(
+			{ giscus: { setConfig: { theme } } },
+			"https://giscus.app"
+		);
+	}
+
+	document.addEventListener("DOMContentLoaded", () => {
+		setTimeout(updateGiscusTheme, 1000);
+	});
+
+	const toggle = document.getElementById("theme-toggle");
+	toggle?.addEventListener("click", () => {
+		setTimeout(updateGiscusTheme, 100);
+	});
+
+	window.addEventListener("message", (event) => {
+		if (event.origin !== "https://giscus.app") return;
+		if (event.data?.giscus?.discussion) {
+			updateGiscusTheme();
+		}
+	});
+</script>
+
+<style>
+	.comments-section {
+		margin-top: 4rem;
+		padding-top: 2rem;
+		border-top: 1px solid var(--border);
+	}
+
+	.comments-header {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.comments-header h3 {
+		font-family: var(--font-display);
+	}
+
+	.comments-container {
+		background-color: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: 0.75rem;
+		padding: 1.5rem;
+		transition: border-color 0.2s ease;
+	}
+
+	.comments-container:hover {
+		border-color: var(--accent);
+	}
+
+	.giscus {
+		width: 100%;
+	}
+
+	.giscus-frame {
+		border: none;
+		width: 100%;
+	}
+</style>

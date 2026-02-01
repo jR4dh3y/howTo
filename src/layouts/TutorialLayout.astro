@@ -2,7 +2,7 @@
 import BaseLayout from './BaseLayout.astro';
 import Header from '../components/Header.astro';
 import TableOfContents from '../components/TableOfContents.astro';
-import Utterances from '../components/Utterances.astro';
+import Giscus from '../components/Giscus.astro';
 
 interface Props {
 	title: string;
@@ -30,7 +30,7 @@ const formattedDate = date.toLocaleDateString("en-US", {
 						<time class="text-sm uppercase tracking-widest text-[var(--muted)] font-medium">
 							{formattedDate}
 						</time>
-						<h1 class="font-display text-4xl md:text-5xl mt-3 mb-4 text-[var(--accent)] text-balance leading-tight">
+						<h1 class="text-4xl md:text-5xl mt-3 mb-4 text-[var(--accent)] text-balance leading-tight" style="font-family: var(--font-display);">
 							{title}
 						</h1>
 						<p class="text-lg text-[var(--muted)] leading-relaxed">
@@ -40,7 +40,7 @@ const formattedDate = date.toLocaleDateString("en-US", {
 					<div class="prose">
 						<slot />
 					</div>
-					<Utterances repo="jr4dh3y/howto" />
+					<Giscus />
 				</article>
 				<aside class="hidden xl:block self-start sticky top-24">
 					<TableOfContents headings={headings} />
@@ -49,12 +49,6 @@ const formattedDate = date.toLocaleDateString("en-US", {
 		</div>
 	</main>
 </BaseLayout>
-
-<style>
-	.font-display {
-		font-family: var(--font-display);
-	}
-</style>
 
 <style is:global>
 	/* Force heading colors in markdown content */
