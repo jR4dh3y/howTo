@@ -1,4 +1,6 @@
 ---
+import { ChevronRight } from "@lucide/astro";
+
 interface Heading {
 	depth: number;
 	slug: string;
@@ -9,28 +11,68 @@ interface Props {
 	headings: Heading[];
 }
 
+interface GroupedHeading {
+	heading: Heading;
+	children: Heading[];
+}
+
 const { headings } = Astro.props;
 
 const filteredHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
+
+// Group h3s under their parent h2s
+const groupedHeadings: GroupedHeading[] = [];
+filteredHeadings.forEach((heading) => {
+	if (heading.depth === 2) {
+		groupedHeadings.push({ heading, children: [] });
+	} else if (heading.depth === 3 && groupedHeadings.length > 0) {
+		groupedHeadings[groupedHeadings.length - 1].children.push(heading);
+	}
+});
 ---
 
-{filteredHeadings.length > 0 && (
+{groupedHeadings.length > 0 && (
 	<nav class="toc">
 		<h4 class="text-xs uppercase tracking-widest text-[var(--accent)] font-semibold mb-4">
 			On this page
 		</h4>
-		<ul class="space-y-2 text-sm">
-			{filteredHeadings.map((heading) => (
-				<li>
-					<a
-						href={`#${heading.slug}`}
-						class:list={[
-							"block py-1 transition-colors duration-150 hover:text-[var(--highlight)]",
-							heading.depth === 2 ? "text-[var(--fg)]" : "pl-4 text-[var(--muted)]",
-						]}
-					>
-						{heading.text}
-					</a>
+		<ul class="space-y-1 text-sm">
+			{groupedHeadings.map((group) => (
+				<li class="toc-group">
+					<div class="flex items-center">
+						{group.children.length > 0 && (
+							<button
+								class="toc-toggle p-1 -ml-1 mr-1 text-[var(--muted)] hover:text-[var(--fg)] transition-colors"
+								aria-expanded="false"
+								aria-label="Toggle subsections"
+							>
+								<ChevronRight class="w-3 h-3 transition-transform duration-200" />
+							</button>
+						)}
+						<a
+							href={`#${group.heading.slug}`}
+							data-depth="2"
+							class="block py-1 transition-colors duration-150 hover:text-[var(--highlight)] text-[var(--fg)]"
+						>
+							{group.heading.text}
+						</a>
+					</div>
+					{group.children.length > 0 && (
+						<ul class="toc-children hidden pl-4 space-y-1 overflow-hidden">
+							{group.children.map((child) => (
+								<li>
+									<a
+										href={`#${child.slug}`}
+										data-depth="3"
+										data-parent={group.heading.slug}
+										class="block py-1 pl-3 transition-colors duration-150 hover:text-[var(--highlight)] text-[var(--muted)]"
+									>
+										{child.text}
+									</a>
+								</li>
+							))}
+						</ul>
+					)}
 				</li>
 			))}
 		</ul>
@@ -41,14 +83,82 @@ const filteredHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
 	.toc a.active {
 		color: var(--highlight);
 	}
+	
+	.toc-toggle[aria-expanded="true"] svg {
+		transform: rotate(90deg);
+	}
+	
+	.toc-children.expanded {
+		display: block;
+	}
 </style>
 
 <script>
 	function initTOC() {
 		const links = document.querySelectorAll(".toc a");
+		const toggles = document.querySelectorAll(".toc-toggle");
+		
+		// Map of parent slug to toggle button and children container
+		const groupMap = new Map<string, { toggle: HTMLButtonElement; children: HTMLElement }>();
+		
+		document.querySelectorAll(".toc-group").forEach((group) => {
+			const toggle = group.querySelector(".toc-toggle") as HTMLButtonElement | null;
+			const children = group.querySelector(".toc-children") as HTMLElement | null;
+			const parentLink = group.querySelector("a[data-depth='2']") as HTMLAnchorElement | null;
+			
+			if (toggle && children && parentLink) {
+				const parentSlug = parentLink.getAttribute("href")?.slice(1);
+				if (parentSlug) {
+					groupMap.set(parentSlug, { toggle, children });
+				}
+			}
+		});
+
 		const headings = Array.from(links).map((link) => {
 			const id = link.getAttribute("href")?.slice(1);
 			return id ? document.getElementById(id) : null;
+		});
+
+		// Track which groups were manually toggled (to not auto-close them)
+		const manuallyToggled = new Set<string>();
+		
+		function expandGroup(parentSlug: string) {
+			const group = groupMap.get(parentSlug);
+			if (group) {
+				group.toggle.setAttribute("aria-expanded", "true");
+				group.children.classList.add("expanded");
+				group.children.classList.remove("hidden");
+			}
+		}
+		
+		function collapseGroup(parentSlug: string) {
+			const group = groupMap.get(parentSlug);
+			if (group) {
+				group.toggle.setAttribute("aria-expanded", "false");
+				group.children.classList.remove("expanded");
+				group.children.classList.add("hidden");
+			}
+		}
+		
+		toggles.forEach((toggle) => {
+			const group = toggle.closest(".toc-group");
+			const parentLink = group?.querySelector("a[data-depth='2']") as HTMLAnchorElement | null;
+			const parentSlug = parentLink?.getAttribute("href")?.slice(1);
+			
+			toggle.addEventListener("click", (e) => {
+				e.preventDefault();
+				if (parentSlug) {
+					const btn = toggle as HTMLButtonElement;
+					const isExpanded = btn.getAttribute("aria-expanded") === "true";
+					if (isExpanded) {
+						collapseGroup(parentSlug);
+						manuallyToggled.delete(parentSlug);
+					} else {
+						expandGroup(parentSlug);
+						manuallyToggled.add(parentSlug);
+					}
+				}
+			});
 		});
 
 		function updateActive() {
@@ -60,12 +170,36 @@ const filteredHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
 					currentIndex = index;
 				}
 			});
+			
+			// Determine which group should be active
+			let activeParentSlug: string | null = null;
 
 			links.forEach((link, index) => {
 				if (index === currentIndex) {
 					link.classList.add("active");
+					
+					// Auto-expand parent if this is a h3
+					const parentSlug = link.getAttribute("data-parent");
+					if (parentSlug) {
+						activeParentSlug = parentSlug;
+						expandGroup(parentSlug);
+					}
+					
+					// Also expand if this is an h2 with children
+					const slug = link.getAttribute("href")?.slice(1);
+					if (slug && link.getAttribute("data-depth") === "2") {
+						activeParentSlug = slug;
+						expandGroup(slug);
+					}
 				} else {
 					link.classList.remove("active");
+				}
+			});
+			
+			// Auto-collapse groups that are not active and weren't manually toggled
+			groupMap.forEach((_, slug) => {
+				if (slug !== activeParentSlug && !manuallyToggled.has(slug)) {
+					collapseGroup(slug);
 				}
 			});
 		}

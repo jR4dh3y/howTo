@@ -1,4 +1,8 @@
-# The No-BS Guide to Building Your First Home Server with Ubuntu and CasaOS
+---
+title: "The No-BS Guide to Building Your First Home Server with Ubuntu and CasaOS"
+date: 2026-02-01
+description: "Turn an old laptop or mini PC into a powerful home server running your AI assistant, media server, password manager, and more using Ubuntu Server and CasaOS."
+---
 
 So you have got an old laptop gathering dust in a drawer, or maybe a spare mini PC sitting in the closet. Instead of letting it rot, let us turn it into something actually useful - a home server that runs your own AI assistant, caches your Steam downloads, manages your passwords privately, and gives you a private cloud that Big Tech cannot snoop on.
 
@@ -28,7 +32,7 @@ The magic combo is **Ubuntu Server** (lightweight, no GUI) + **CasaOS** (beautif
 **The good news:** Almost anything works.
 
 **Minimum viable setup:**
-- Any x86_64 computer (Intel/AMD) from the last 15 years (my laptop with i3-2310m and 8gb ram works flawlessly even with 30 containers)
+- Any `x86_64` computer (Intel/AMD) from the last 15 years (my laptop with i3-2310m and 8gb ram works flawlessly even with 30 containers)
 - 4GB RAM (8GB recommended if you want to run multiple apps)
 - 30GB storage (but really, get a cheap SSD - spinning rust is painfully slow)
 - Ethernet connection (WiFi works but ethernet is rock solid and recommended)
@@ -90,7 +94,7 @@ Let it install. When it finishes, remove the USB and reboot.
 
 You now have a black screen with some text. Welcome to Linux. Do not panic - this is where the fun starts.
 
-### Fix #1: Stop the Laptop From Sleeping When You Close the Lid (if your server is a laptop)
+### Fix #1: Stop the Laptop From Sleeping When You Close the Lid
 
 If you are using a laptop (which you probably are), closing the lid puts it to sleep. That is the opposite of what we want - we want to close it and shove it on a shelf.
 
@@ -172,6 +176,23 @@ Now your server will always be at `192.168.1.50` (or whatever you picked). Write
 - you can just skip this and use you hostname but static IPs are more reliable.
 
 ---
+## Optional Step: SSH into Your Server from Your Main PC
+From your main PC (Windows, macOS, Linux), open a terminal and run:
+```bash
+ssh your-username@your-server-ip
+```
+Replace `your-username` with the username you created during install, and `your-server-ip` with the static IP you set.
+
+or
+
+```bash
+ssh your-username@your-server-hostname
+```
+
+If this is your first time connecting, it will ask you to confirm the fingerprint. Type `yes` and hit Enter.
+enter your password when prompted.
+
+You are now controlling your server remotely. Neat, right?
 
 ## Part 3: Installing CasaOS
 
@@ -238,7 +259,9 @@ Click **"App Store"** in the top right. You will see categories like Media, Util
 7. **qBittorrent (Downloads)** - A remote torrent client. Obviously. Reliable, fast, and runs headless.
 Click any app, hit "Install," and CasaOS handles the Docker configuration automatically. It even picks reasonable default ports and storage locations.
 
-#### 3rd Party apps worth mentioning (you need to manually add these via "Custom App")
+### 3rd Party apps worth mentioning 
+
+(you need to manually add these via "Custom App")
 
 1. **[Steam Headless](https://github.com/Steam-Headless/docker-steam-headless) (Gaming)** - this is bit tricky to set up but worth it if you have multiple gaming PCs or you want remote download. Caches Steam game updates locally so you only download once. If you want i will make a separate guide for this. If you setup gpu passthrough you can even game stream from your server.
 
@@ -256,11 +279,13 @@ By default, CasaOS stores app data in `/DATA/AppData` and suggests putting your 
 
 ---
 
-## Part 5: Remote Access (Optional but Recommended)
+## Part 5: Remote Access 
+(Optional but Recommended)
 
 Right now, you can only access CasaOS from your home network. Let us fix that.
 
-### Option 1: Tailscale (Easiest and Safest)
+### Option 1: Tailscale 
+(Easiest and Safest)
 
 Tailscale creates a private mesh VPN. Your devices get permanent IP addresses that work from anywhere.
 
@@ -271,9 +296,12 @@ sudo tailscale up
 
 It will give you a link to authenticate. Do that, and now you can access your server via its Tailscale IP (something like `100.x.x.x`) from anywhere in the world. No port forwarding, no security holes.
 
+Install Tailscale on your phone and PC and login with the same account. Boom - instant secure remote access to your server.
+
 Your phone on 5G? Connect to Tailscale and access your server as if you were home. Your passwords, your AI, your games - all accessible anywhere.
 
-### Option 2: Cloudflare Tunnels (If you want a custom domain, a bit complex to set up)
+### Option 2: Cloudflare Tunnels 
+(If you want a custom domain, a bit complex to set up)
 
 Want to access your server at `https://ai.yourdomain.com`? Use Cloudflare Tunnels (formerly Argo).
 
@@ -322,7 +350,8 @@ Or enable [Watchtower](https://containrrr.dev/watchtower/) (available in the App
 
 ---
 
-## Part 7: Beyond CasaOS (When You Are Ready to Level Up)
+## Part 7: Beyond CasaOS 
+(When You Are Ready to Level Up)
 
 CasaOS is perfect for starting out. But eventually, you might want more control.
 
