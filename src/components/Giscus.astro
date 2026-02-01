@@ -1,5 +1,5 @@
 ---
-import { MessageSquare } from '@lucide/astro';
+import { MessageSquare, RefreshCw } from '@lucide/astro';
 
 const repo = import.meta.env.GISCUS_REPO || "";
 const repoId = import.meta.env.GISCUS_REPO_ID || "";
@@ -7,14 +7,23 @@ const category = import.meta.env.GISCUS_CATEGORY || "General";
 const categoryId = import.meta.env.GISCUS_CATEGORY_ID || "";
 ---
 
-<div class="comments-section">
-	<div class="comments-header">
-		<MessageSquare class="w-5 h-5 text-[var(--accent)]" />
-		<h3 class="text-lg font-medium text-[var(--fg)]">Comments</h3>
-		<span class="text-xs text-[var(--muted)]">Powered by Giscus</span>
+<div class="mt-16 pt-8 border-t border-[var(--border)]">
+	<div class="flex items-center justify-between mb-6">
+		<div class="flex items-center gap-3">
+			<MessageSquare class="w-5 h-5 text-[var(--accent)]" />
+			<h3 class="text-lg font-medium text-[var(--fg)]" style="font-family: var(--font-display);">Comments</h3>
+		</div>
+		<button 
+			id="refresh-comments" 
+			class="flex items-center justify-center p-2 rounded-lg bg-[var(--surface)] border border-[var(--border)] text-[var(--muted)] cursor-pointer transition-all duration-200 hover:border-[var(--accent)] hover:text-[var(--accent)] hover:bg-[var(--bg)]"
+			aria-label="Refresh comments"
+			title="Refresh comments"
+		>
+			<RefreshCw class="w-4 h-4" id="refresh-icon" />
+		</button>
 	</div>
-	<div class="comments-container">
-		<div class="giscus"></div>
+	<div class="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6 transition-colors duration-200 hover:border-[var(--accent)]">
+		<div class="giscus w-full"></div>
 	</div>
 </div>
 
@@ -26,8 +35,8 @@ const categoryId = import.meta.env.GISCUS_CATEGORY_ID || "";
 	data-category-id={categoryId}
 	data-mapping="pathname"
 	data-strict="0"
-	data-reactions-enabled="1"
-	data-emit-metadata="0"
+	data-reactions-enabled="0"
+	data-emit-metadata="1"
 	data-input-position="bottom"
 	data-theme="preferred_color_scheme"
 	data-lang="en"
@@ -36,6 +45,8 @@ const categoryId = import.meta.env.GISCUS_CATEGORY_ID || "";
 ></script>
 
 <script>
+	let lastCommentCount = 0;
+	
 	function updateGiscusTheme() {
 		const iframe = document.querySelector("iframe.giscus-frame");
 		if (!iframe || !(iframe instanceof HTMLIFrameElement)) return;
@@ -49,8 +60,53 @@ const categoryId = import.meta.env.GISCUS_CATEGORY_ID || "";
 		);
 	}
 
+	function reloadGiscus() {
+		const existingScript = document.querySelector('script[src="https://giscus.app/client.js"]');
+		if (existingScript) {
+			existingScript.remove();
+		}
+		
+		const existingIframe = document.querySelector("iframe.giscus-frame");
+		if (existingIframe) {
+			existingIframe.remove();
+		}
+		
+		const container = document.querySelector(".giscus");
+		if (!container) return;
+		
+		const newScript = document.createElement("script");
+		newScript.src = "https://giscus.app/client.js";
+		newScript.setAttribute("data-repo", "jr4dh3y/howto");
+		newScript.setAttribute("data-repo-id", "R_kgDON4k1kA");
+		newScript.setAttribute("data-category", "General");
+		newScript.setAttribute("data-category-id", "DIC_kwDON4k1kM4CnGlB");
+		newScript.setAttribute("data-mapping", "pathname");
+		newScript.setAttribute("data-strict", "0");
+		newScript.setAttribute("data-reactions-enabled", "0");
+		newScript.setAttribute("data-emit-metadata", "1");
+		newScript.setAttribute("data-input-position", "bottom");
+		newScript.setAttribute("data-theme", "preferred_color_scheme");
+		newScript.setAttribute("data-lang", "en");
+		newScript.setAttribute("crossorigin", "anonymous");
+		newScript.async = true;
+		
+		document.body.appendChild(newScript);
+		
+		setTimeout(updateGiscusTheme, 1000);
+	}
+
 	document.addEventListener("DOMContentLoaded", () => {
 		setTimeout(updateGiscusTheme, 1000);
+		
+		const refreshBtn = document.getElementById("refresh-comments");
+		const refreshIcon = document.getElementById("refresh-icon");
+		refreshBtn?.addEventListener("click", () => {
+			refreshIcon?.classList.add("animate-spin");
+			reloadGiscus();
+			setTimeout(() => {
+				refreshIcon?.classList.remove("animate-spin");
+			}, 1000);
+		});
 	});
 
 	const toggle = document.getElementById("theme-toggle");
@@ -60,46 +116,24 @@ const categoryId = import.meta.env.GISCUS_CATEGORY_ID || "";
 
 	window.addEventListener("message", (event) => {
 		if (event.origin !== "https://giscus.app") return;
+		
 		if (event.data?.giscus?.discussion) {
 			updateGiscusTheme();
+			
+			const commentCount = event.data.giscus.discussion.totalCommentCount || 0;
+			if (commentCount > lastCommentCount && lastCommentCount > 0) {
+				setTimeout(reloadGiscus, 2000);
+			}
+			lastCommentCount = commentCount;
+		}
+		
+		if (event.data?.giscus?.commentCreated) {
+			setTimeout(reloadGiscus, 1500);
 		}
 	});
 </script>
 
 <style>
-	.comments-section {
-		margin-top: 4rem;
-		padding-top: 2rem;
-		border-top: 1px solid var(--border);
-	}
-
-	.comments-header {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-		margin-bottom: 1.5rem;
-	}
-
-	.comments-header h3 {
-		font-family: var(--font-display);
-	}
-
-	.comments-container {
-		background-color: var(--surface);
-		border: 1px solid var(--border);
-		border-radius: 0.75rem;
-		padding: 1.5rem;
-		transition: border-color 0.2s ease;
-	}
-
-	.comments-container:hover {
-		border-color: var(--accent);
-	}
-
-	.giscus {
-		width: 100%;
-	}
-
 	.giscus-frame {
 		border: none;
 		width: 100%;

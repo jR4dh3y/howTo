@@ -111,8 +111,8 @@ const formattedDate = date.toLocaleDateString("en-US", {
 	// Add copy buttons to all code blocks
 	document.addEventListener('DOMContentLoaded', () => {
 		const codeBlocks = document.querySelectorAll('.prose pre');
-		const copyTemplate = document.getElementById('copy-icon-template');
-		const checkTemplate = document.getElementById('check-icon-template');
+		const copyTemplate = document.getElementById('copy-icon-template') as HTMLTemplateElement | null;
+		const checkTemplate = document.getElementById('check-icon-template') as HTMLTemplateElement | null;
 
 		codeBlocks.forEach((pre) => {
 			const button = document.createElement('button');
