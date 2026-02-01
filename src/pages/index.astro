@@ -1,17 +1,41 @@
 ---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import TutorialCard from '../components/TutorialCard.astro';
 
+const tutorials = await getCollection('tutorials');
+const sortedTutorials = tutorials.sort((a, b) => 
+	new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+);
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout title="HowTo | Technical Tutorials">
+	<Header />
+	<main class="pt-24 pb-16 px-6">
+		<div class="max-w-4xl mx-auto">
+			{sortedTutorials.length === 0 ? (
+				<p class="text-[var(--muted)] text-center py-12">
+					No tutorials yet. Check back soon!
+				</p>
+			) : (
+				<div class="grid gap-4">
+					{sortedTutorials.map((tutorial) => (
+						<TutorialCard
+							title={tutorial.data.title}
+							description={tutorial.data.description}
+							date={tutorial.data.date}
+							slug={tutorial.id.replace(/\.md$/, '')}
+						/>
+					))}
+				</div>
+			)}
+		</div>
+	</main>
+</BaseLayout>
+
+<style>
+	.font-display {
+		font-family: var(--font-display);
+	}
+</style>

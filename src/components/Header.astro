@@ -1,0 +1,167 @@
+---
+import { Github, Search } from '@lucide/astro';
+import ThemeToggle from './ThemeToggle.astro';
+---
+
+<header class="fixed top-0 left-0 right-0 z-50 border-b border-[var(--border)] bg-[var(--bg)]/80 backdrop-blur-md">
+	<div class="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+		<div class="flex items-baseline gap-1.5">
+			<a href="/" class="font-heading text-2xl font-bold tracking-tight text-[var(--accent)] hover:text-[var(--highlight)] transition-colors duration-200">
+				howTo
+			</a>
+			<span class="text-xs text-[var(--muted)]">
+				by <a href="https://radhey.dev" target="_blank" rel="noopener noreferrer" class="hover:text-[var(--highlight)] transition-colors duration-200">radhey.dev</a>
+			</span>
+		</div>
+
+		<div class="flex items-center gap-1">
+			<div class="relative" id="search-container">
+				<Search class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--muted)] pointer-events-none" />
+				<input
+					type="search"
+					id="search-input"
+					placeholder="Search..."
+					class="w-72 h-8 pl-8 pr-3 text-xs rounded-md bg-[var(--surface)] border border-[var(--border)] text-[var(--fg)] placeholder-[var(--muted)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)] transition-all duration-200"
+				/>
+				<div id="search-results" class="hidden absolute top-full left-0 mt-2 w-72 max-h-80 overflow-y-auto rounded-lg border border-[var(--border)] bg-[var(--surface)] shadow-xl z-50">
+					<ul id="results-list" class="p-2"></ul>
+					<div id="no-results" class="hidden flex items-center justify-center p-6">
+						<p class="text-sm text-[var(--muted)]">No tutorials found</p>
+					</div>
+				</div>
+			</div>
+			<ThemeToggle />
+			<a
+				href="https://github.com/jr4dh3y/howto"
+				target="_blank"
+				rel="noopener noreferrer"
+				aria-label="View on GitHub"
+				class="p-2 rounded-md transition-colors duration-200 hover:bg-[var(--surface)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+			>
+				<Github class="w-4 h-4 text-[var(--fg)]" />
+			</a>
+		</div>
+	</div>
+</header>
+
+<style>
+	.font-display {
+		font-family: var(--font-display);
+	}
+</style>
+
+<style is:global>
+	.search-result-item {
+		display: block;
+		padding: 0.75rem;
+		border-radius: 0.375rem;
+		transition: background-color 0.15s ease;
+	}
+
+	.search-result-item:hover {
+		background-color: var(--border);
+	}
+
+	.search-result-item:hover .result-title {
+		color: var(--highlight);
+	}
+
+	.search-match {
+		color: var(--highlight);
+		font-weight: 600;
+	}
+</style>
+
+<script>
+	const searchInput = document.getElementById('search-input') as HTMLInputElement;
+	const searchResults = document.getElementById('search-results');
+	const resultsList = document.getElementById('results-list');
+	const noResults = document.getElementById('no-results');
+
+	interface Tutorial {
+		title: string;
+		description: string;
+		slug: string;
+	}
+
+	declare global {
+		interface Window {
+			__SEARCH_INDEX__?: Tutorial[];
+		}
+	}
+
+	function getTutorials(): Tutorial[] {
+		return window.__SEARCH_INDEX__ || [];
+	}
+
+	function highlightMatch(text: string, query: string): string {
+		if (!query.trim()) return text;
+		const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+		return text.replace(regex, '<span class="search-match">$1</span>');
+	}
+
+	function search(query: string) {
+		if (!query.trim()) {
+			searchResults?.classList.add('hidden');
+			return;
+		}
+
+		const tutorials = getTutorials();
+		const q = query.toLowerCase();
+		const matches = tutorials.filter(t =>
+			t.title.toLowerCase().includes(q) ||
+			t.description.toLowerCase().includes(q)
+		);
+
+		if (resultsList && noResults && searchResults) {
+			resultsList.innerHTML = '';
+
+			if (matches.length > 0) {
+				noResults.classList.add('hidden');
+				resultsList.classList.remove('hidden');
+				matches.forEach(t => {
+					const li = document.createElement('li');
+					li.innerHTML = `
+						<a href="/tutorials/${t.slug}" class="search-result-item">
+							<div class="result-title text-sm font-medium" style="color: var(--fg);">${highlightMatch(t.title, q)}</div>
+							<div class="text-xs mt-1" style="color: var(--muted);">${highlightMatch(t.description, q)}</div>
+						</a>
+					`;
+					resultsList.appendChild(li);
+				});
+			} else {
+				resultsList.classList.add('hidden');
+				noResults.classList.remove('hidden');
+			}
+
+			searchResults.classList.remove('hidden');
+		}
+	}
+
+	searchInput?.addEventListener('input', (e) => {
+		search((e.target as HTMLInputElement).value);
+	});
+
+	searchInput?.addEventListener('focus', () => {
+		if (searchInput.value.trim()) {
+			search(searchInput.value);
+		}
+	});
+
+	document.addEventListener('click', (e) => {
+		if (!searchResults?.contains(e.target as Node) && e.target !== searchInput) {
+			searchResults?.classList.add('hidden');
+		}
+	});
+
+	document.addEventListener('keydown', (e) => {
+		if (e.key === 'Escape') {
+			searchResults?.classList.add('hidden');
+			searchInput?.blur();
+		}
+		if (e.key === '/' && document.activeElement !== searchInput) {
+			e.preventDefault();
+			searchInput?.focus();
+		}
+	});
+</script>

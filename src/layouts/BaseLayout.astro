@@ -1,0 +1,60 @@
+---
+import { getCollection } from 'astro:content';
+
+interface Props {
+	title: string;
+	description?: string;
+}
+
+const { title, description = "HowTo - Technical tutorials and guides" } = Astro.props;
+
+const tutorials = await getCollection('tutorials');
+const searchIndex = tutorials.map((tutorial) => ({
+	title: tutorial.data.title,
+	description: tutorial.data.description,
+	slug: tutorial.id.replace(/\.md$/, ''),
+}));
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content={description} />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+			rel="stylesheet"
+		/>
+		<link
+			href="https://cdn.jsdelivr.net/npm/@fontsource/cascadia-code@5/index.css"
+			rel="stylesheet"
+		/>
+		<title>{title}</title>
+		<script is:inline>
+			const theme = (() => {
+				if (typeof localStorage !== "undefined" && localStorage.getItem("theme")) {
+					return localStorage.getItem("theme");
+				}
+				return "dark";
+			})();
+			if (theme === "dark") {
+				document.documentElement.classList.add("dark");
+			}
+		</script>
+	</head>
+	<body>
+		<script is:inline define:vars={{ searchIndex }}>
+			window.__SEARCH_INDEX__ = searchIndex;
+		</script>
+		<slot />
+	</body>
+</html>
+
+<style is:global>
+	@import "../styles/global.css";
+</style>

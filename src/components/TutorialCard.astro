@@ -1,0 +1,43 @@
+---
+interface Props {
+	title: string;
+	description: string;
+	date: Date;
+	slug: string;
+}
+
+const { title, description, date, slug } = Astro.props;
+
+const formattedDate = date.toLocaleDateString("en-US", {
+	year: "numeric",
+	month: "short",
+	day: "numeric",
+});
+---
+
+<a href={`/tutorials/${slug}`} class="group block">
+	<article class="p-6 rounded-xl border border-[var(--border)] bg-[var(--surface)] transition-all duration-300 hover:border-[var(--highlight)] hover:shadow-lg hover:shadow-[var(--accent)]/10 hover:-translate-y-0.5">
+		<time class="text-xs uppercase tracking-widest text-[var(--muted)] font-medium">
+			{formattedDate}
+		</time>
+		<h2 class="font-display text-xl mt-2 mb-3 text-[var(--accent)] group-hover:text-[var(--highlight)] transition-colors duration-200">
+			{title}
+		</h2>
+		<p class="text-sm text-[var(--muted)] leading-relaxed line-clamp-2">
+			{description}
+		</p>
+	</article>
+</a>
+
+<style>
+	.font-display {
+		font-family: var(--font-display);
+	}
+
+	.line-clamp-2 {
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+</style>

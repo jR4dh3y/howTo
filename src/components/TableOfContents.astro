@@ -1,0 +1,78 @@
+---
+interface Heading {
+	depth: number;
+	slug: string;
+	text: string;
+}
+
+interface Props {
+	headings: Heading[];
+}
+
+const { headings } = Astro.props;
+
+const filteredHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
+---
+
+{filteredHeadings.length > 0 && (
+	<nav class="toc">
+		<h4 class="text-xs uppercase tracking-widest text-[var(--accent)] font-semibold mb-4">
+			On this page
+		</h4>
+		<ul class="space-y-2 text-sm">
+			{filteredHeadings.map((heading) => (
+				<li>
+					<a
+						href={`#${heading.slug}`}
+						class:list={[
+							"block py-1 transition-colors duration-150 hover:text-[var(--highlight)]",
+							heading.depth === 2 ? "text-[var(--fg)]" : "pl-4 text-[var(--muted)]",
+						]}
+					>
+						{heading.text}
+					</a>
+				</li>
+			))}
+		</ul>
+	</nav>
+)}
+
+<style>
+	.toc a.active {
+		color: var(--highlight);
+	}
+</style>
+
+<script>
+	function initTOC() {
+		const links = document.querySelectorAll(".toc a");
+		const headings = Array.from(links).map((link) => {
+			const id = link.getAttribute("href")?.slice(1);
+			return id ? document.getElementById(id) : null;
+		});
+
+		function updateActive() {
+			const scrollY = window.scrollY;
+
+			let currentIndex = 0;
+			headings.forEach((heading, index) => {
+				if (heading && heading.offsetTop - 100 <= scrollY) {
+					currentIndex = index;
+				}
+			});
+
+			links.forEach((link, index) => {
+				if (index === currentIndex) {
+					link.classList.add("active");
+				} else {
+					link.classList.remove("active");
+				}
+			});
+		}
+
+		window.addEventListener("scroll", updateActive, { passive: true });
+		updateActive();
+	}
+
+	document.addEventListener("DOMContentLoaded", initTOC);
+</script>
