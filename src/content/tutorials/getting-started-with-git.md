@@ -2,6 +2,8 @@
 title: "Getting Started with Git"
 date: 2026-01-15
 description: "Learn the fundamentals of Git version control - from installation to your first commit."
+tags: ["git", "version-control", "programming"]
+youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 ---
 
 Git is a distributed version control system that tracks changes in your code. This guide will walk you through the essentials.

@@ -13,6 +13,7 @@ const searchIndex = tutorials.map((tutorial) => ({
 	title: tutorial.data.title,
 	description: tutorial.data.description,
 	slug: tutorial.id.replace(/\.md$/, ''),
+	tags: tutorial.data.tags,
 }));
 ---
 

@@ -6,6 +6,8 @@ const tutorials = defineCollection({
 		title: z.string(),
 		date: z.coerce.date(),
 		description: z.string(),
+		tags: z.array(z.string()).default([]),
+		youtubeUrl: z.string().optional(),
 	}),
 });
 

@@ -1,6 +1,13 @@
 ---
-import { Github, Search } from '@lucide/astro';
+import { Search, X } from '@lucide/astro';
 import ThemeToggle from './ThemeToggle.astro';
+
+interface Props {
+	showSearch?: boolean;
+	allTags?: string[];
+}
+
+const { showSearch = false, allTags = [] } = Astro.props;
 ---
 
 <header class="fixed top-0 left-0 right-0 z-50 border-b border-[var(--border)] bg-[var(--bg)]/80 backdrop-blur-md">
@@ -14,22 +21,22 @@ import ThemeToggle from './ThemeToggle.astro';
 			</span>
 		</div>
 
-		<div class="flex items-center gap-1">
-			<div class="relative" id="search-container">
-				<Search class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--muted)] pointer-events-none" />
-				<input
-					type="search"
-					id="search-input"
-					placeholder="Search..."
-					class="w-72 h-8 pl-8 pr-3 text-xs rounded-md bg-[var(--surface)] border border-[var(--border)] text-[var(--fg)] placeholder-[var(--muted)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)] transition-all duration-200"
-				/>
-				<div id="search-results" class="hidden absolute top-full left-0 mt-2 w-72 max-h-80 overflow-y-auto rounded-lg border border-[var(--border)] bg-[var(--surface)] shadow-xl z-50">
-					<ul id="results-list" class="p-2"></ul>
-					<div id="no-results" class="hidden flex items-center justify-center p-6">
-						<p class="text-sm text-[var(--muted)]">No tutorials found</p>
+		<div class="flex items-center gap-2">
+			{showSearch && (
+				<div class="search-container relative" data-all-tags={JSON.stringify(allTags)}>
+					<div class="search-bar flex items-center h-8 rounded-md bg-[var(--surface)] border border-[var(--border)] focus-within:border-[var(--accent)] focus-within:ring-1 focus-within:ring-[var(--accent)] transition-all duration-200">
+						<Search class="w-3.5 h-3.5 text-[var(--muted)] ml-2.5 flex-shrink-0" />
+						<div id="search-chips" class="flex items-center gap-1 ml-1"></div>
+						<input
+							type="text"
+							id="search-input"
+							placeholder="Search..."
+							class="flex-1 h-full px-2 text-xs bg-transparent text-[var(--fg)] placeholder-[var(--muted)] focus:outline-none min-w-[120px]"
+							autocomplete="off"
+						/>
 					</div>
 				</div>
-			</div>
+			)}
 			<ThemeToggle />
 			<a
 				href="https://github.com/jr4dh3y/howto"
@@ -38,44 +45,70 @@ import ThemeToggle from './ThemeToggle.astro';
 				aria-label="View on GitHub"
 				class="p-2 rounded-md transition-colors duration-200 hover:bg-[var(--surface)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
 			>
-				<Github class="w-4 h-4 text-[var(--fg)]" />
+				<svg class="w-4 h-4 text-[var(--fg)]" viewBox="0 0 24 24" fill="currentColor">
+					<path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+				</svg>
 			</a>
 		</div>
 	</div>
 </header>
 
+<style>
+	.search-chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 3px;
+		padding: 2px 3px 2px 5px;
+		font-size: 10px;
+		font-weight: 500;
+		line-height: 1;
+		border-radius: 3px;
+		background-color: var(--accent);
+		color: var(--bg);
+		white-space: nowrap;
+		max-width: 70px;
+		overflow: hidden;
+		border: 1px solid var(--highlight);
+	}
+
+	.search-chip span {
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.search-chip button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 10px;
+		height: 10px;
+		border-radius: 2px;
+		background-color: transparent;
+		flex-shrink: 0;
+		opacity: 0.7;
+		transition: opacity 0.15s ease;
+	}
+
+	.search-chip button:hover {
+		opacity: 1;
+	}
+
+
+</style>
+
 <style is:global>
-	.search-result-item {
-		display: block;
-		padding: 0.75rem;
-		border-radius: 0.375rem;
-		transition: background-color 0.15s ease;
-	}
-
-	.search-result-item:hover {
-		background-color: var(--border);
-	}
-
-	.search-result-item:hover .result-title {
-		color: var(--highlight);
-	}
-
-	.search-match {
+	.search-highlight {
 		color: var(--highlight);
 		font-weight: 600;
 	}
 </style>
 
 <script>
-	const searchInput = document.getElementById('search-input') as HTMLInputElement;
-	const searchResults = document.getElementById('search-results');
-	const resultsList = document.getElementById('results-list');
-	const noResults = document.getElementById('no-results');
-
 	interface Tutorial {
 		title: string;
 		description: string;
 		slug: string;
+		tags: string[];
 	}
 
 	declare global {
@@ -84,78 +117,303 @@ import ThemeToggle from './ThemeToggle.astro';
 		}
 	}
 
-	function getTutorials(): Tutorial[] {
-		return window.__SEARCH_INDEX__ || [];
-	}
+	class SearchController {
+		searchQuery: string = '';
+		selectedTags: Set<string> = new Set();
+		allTags: string[] = [];
 
-	function highlightMatch(text: string, query: string): string {
-		if (!query.trim()) return text;
-		const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-		return text.replace(regex, '<span class="search-match">$1</span>');
-	}
+		// DOM elements
+		container: HTMLElement | null;
+		searchInput: HTMLInputElement | null;
+		chipsContainer: HTMLElement | null;
+		tutorialCards: NodeListOf<HTMLElement>;
+		emptyState: HTMLElement | null;
 
-	function search(query: string) {
-		if (!query.trim()) {
-			searchResults?.classList.add('hidden');
-			return;
+		// Store original content for restoration
+		originalContent: Map<HTMLElement, { title: string; tags: Map<HTMLElement, string> }> = new Map();
+
+		constructor() {
+			this.container = document.querySelector('.search-container');
+			this.searchInput = document.getElementById('search-input') as HTMLInputElement;
+			this.chipsContainer = document.getElementById('search-chips');
+			this.tutorialCards = document.querySelectorAll('[data-tags]');
+			this.emptyState = document.querySelector('.empty-state');
+
+			if (!this.container || !this.searchInput) return;
+
+			// Parse all tags from data attribute
+			const tagsData = this.container.dataset.allTags;
+			this.allTags = tagsData ? JSON.parse(tagsData) : [];
+
+			// Store original content
+			this.storeOriginalContent();
+
+			this.init();
 		}
 
-		const tutorials = getTutorials();
-		const q = query.toLowerCase();
-		const matches = tutorials.filter(t =>
-			t.title.toLowerCase().includes(q) ||
-			t.description.toLowerCase().includes(q)
-		);
-
-		if (resultsList && noResults && searchResults) {
-			resultsList.innerHTML = '';
-
-			if (matches.length > 0) {
-				noResults.classList.add('hidden');
-				resultsList.classList.remove('hidden');
-				matches.forEach(t => {
-					const li = document.createElement('li');
-					li.innerHTML = `
-						<a href="/tutorials/${t.slug}" class="search-result-item">
-							<div class="result-title text-sm font-medium" style="color: var(--fg);">${highlightMatch(t.title, q)}</div>
-							<div class="text-xs mt-1" style="color: var(--muted);">${highlightMatch(t.description, q)}</div>
-						</a>
-					`;
-					resultsList.appendChild(li);
+		storeOriginalContent() {
+			this.tutorialCards.forEach((card) => {
+				const titleEl = card.querySelector('h2');
+				const tagEls = card.querySelectorAll('.tag-filter-btn');
+				const tagsMap = new Map<HTMLElement, string>();
+				
+				tagEls.forEach((tagEl) => {
+					tagsMap.set(tagEl as HTMLElement, tagEl.textContent || '');
 				});
-			} else {
-				resultsList.classList.add('hidden');
-				noResults.classList.remove('hidden');
+
+				if (titleEl) {
+					this.originalContent.set(card, {
+						title: titleEl.textContent || '',
+						tags: tagsMap
+					});
+				}
+			});
+		}
+
+		init() {
+			// Search input events
+			this.searchInput?.addEventListener('input', (e) => {
+				this.searchQuery = (e.target as HTMLInputElement).value;
+				this.filter();
+			});
+
+			// Handle Enter key to convert exact tag match to chip
+			this.searchInput?.addEventListener('keydown', (e) => {
+				if (e.key === 'Enter') {
+					e.preventDefault();
+					this.tryConvertToChip();
+				}
+				// Handle backspace to remove last chip when input is empty
+				if (e.key === 'Backspace' && this.searchQuery === '' && this.selectedTags.size > 0) {
+					const lastTag = Array.from(this.selectedTags).pop();
+					if (lastTag) {
+						this.removeTag(lastTag);
+					}
+				}
+			});
+
+			// Keyboard shortcuts
+			document.addEventListener('keydown', (e) => {
+				if (e.key === '/' && document.activeElement !== this.searchInput) {
+					e.preventDefault();
+					this.searchInput?.focus();
+				}
+				if (e.key === 'Escape' && document.activeElement === this.searchInput) {
+					this.searchInput?.blur();
+				}
+			});
+
+			// Handle clicks on tutorial card tags
+			document.addEventListener('click', (e) => {
+				const target = e.target as HTMLElement;
+				const tagBtn = target.closest('.tag-filter-btn') as HTMLElement;
+				if (tagBtn) {
+					const tag = tagBtn.dataset.tag;
+					if (tag && !this.selectedTags.has(tag)) {
+						this.selectedTags.add(tag);
+						this.updateChips();
+						this.filter();
+						this.updateURL();
+						window.scrollTo({ top: 0, behavior: 'smooth' });
+					}
+				}
+			});
+
+			// Parse URL params on load
+			this.parseURL();
+		}
+
+		tryConvertToChip() {
+			const query = this.searchQuery.trim().toLowerCase();
+			const exactMatch = this.allTags.find(
+				(tag) => tag.toLowerCase() === query
+			);
+
+			if (exactMatch && !this.selectedTags.has(exactMatch)) {
+				this.selectedTags.add(exactMatch);
+				this.searchQuery = '';
+				if (this.searchInput) this.searchInput.value = '';
+				this.updateChips();
+				this.filter();
+				this.updateURL();
+			}
+		}
+
+		removeTag(tag: string) {
+			this.selectedTags.delete(tag);
+			this.updateChips();
+			this.filter();
+			this.updateURL();
+		}
+
+		updateChips() {
+			if (!this.chipsContainer) return;
+
+			this.chipsContainer.innerHTML = Array.from(this.selectedTags)
+				.map(
+					(tag) => `
+					<span class="search-chip" data-tag="${tag}">
+						<span>${tag}</span>
+						<button type="button" aria-label="Remove ${tag} filter">
+							<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+								<line x1="18" y1="6" x2="6" y2="18"></line>
+								<line x1="6" y1="6" x2="18" y2="18"></line>
+							</svg>
+						</button>
+					</span>
+				`
+				)
+				.join('');
+
+			// Add click handlers to chip remove buttons
+			this.chipsContainer.querySelectorAll('.search-chip button').forEach((btn) => {
+				btn.addEventListener('click', (e) => {
+					e.stopPropagation();
+					const chip = (btn as HTMLElement).parentElement;
+					const tag = chip?.dataset.tag;
+					if (tag) this.removeTag(tag);
+				});
+			});
+
+			// Update input placeholder based on chips
+			if (this.searchInput) {
+				this.searchInput.placeholder = this.selectedTags.size > 0 ? 'Add more...' : 'Search...';
+			}
+		}
+
+		highlightText(text: string, query: string): string {
+			if (!query.trim()) return text;
+			const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+			return text.replace(regex, '<span class="search-highlight">$1</span>');
+		}
+
+		filter() {
+			const query = this.searchQuery.trim().toLowerCase();
+			const hasQuery = query.length > 0;
+			const hasSelectedTags = this.selectedTags.size > 0;
+
+			let visibleCount = 0;
+
+			this.tutorialCards.forEach((card) => {
+				const cardTags = (card.dataset.tags || '').split(',').filter(Boolean);
+				const original = this.originalContent.get(card);
+				if (!original) return;
+
+				const title = original.title.toLowerCase();
+				const titleEl = card.querySelector('h2');
+
+				let matchesText = true;
+				let matchesTags = true;
+
+				// Text search logic - search title and tag names
+				if (hasQuery) {
+					const titleMatch = title.includes(query);
+					const tagsMatch = cardTags.some((tag) =>
+						tag.toLowerCase().includes(query)
+					);
+					matchesText = titleMatch || tagsMatch;
+				}
+
+				// Tag filter logic (AND - must have ALL selected tags)
+				if (hasSelectedTags) {
+					matchesTags = Array.from(this.selectedTags).every((tag) =>
+						cardTags.includes(tag)
+					);
+				}
+
+				const isVisible = matchesText && matchesTags;
+
+				if (isVisible) {
+					card.classList.remove('hidden');
+					visibleCount++;
+
+					// Apply highlighting
+					if (titleEl && hasQuery) {
+						titleEl.innerHTML = this.highlightText(original.title, query);
+					} else if (titleEl) {
+						titleEl.textContent = original.title;
+					}
+
+					// Highlight matching tags
+					original.tags.forEach((originalText, tagEl) => {
+						if (hasQuery && originalText.toLowerCase().includes(query)) {
+							tagEl.innerHTML = this.highlightText(originalText, query);
+						} else {
+							tagEl.textContent = originalText;
+						}
+					});
+				} else {
+					card.classList.add('hidden');
+					
+					// Restore original content for hidden cards
+					if (titleEl) {
+						titleEl.textContent = original.title;
+					}
+					original.tags.forEach((originalText, tagEl) => {
+						tagEl.textContent = originalText;
+					});
+				}
+			});
+
+			// Update empty state
+			if (this.emptyState) {
+				const shouldShow = visibleCount === 0 && (hasQuery || hasSelectedTags);
+				this.emptyState.classList.toggle('hidden', !shouldShow);
 			}
 
-			searchResults.classList.remove('hidden');
+			// Update URL
+			this.updateURL();
+		}
+
+		updateURL() {
+			const url = new URL(window.location.href);
+
+			if (this.searchQuery) {
+				url.searchParams.set('q', this.searchQuery);
+			} else {
+				url.searchParams.delete('q');
+			}
+
+			if (this.selectedTags.size > 0) {
+				url.searchParams.set('tags', Array.from(this.selectedTags).join(','));
+			} else {
+				url.searchParams.delete('tags');
+			}
+
+			window.history.replaceState({}, '', url);
+		}
+
+		parseURL() {
+			const urlParams = new URLSearchParams(window.location.search);
+
+			// Parse search query
+			const queryParam = urlParams.get('q');
+			if (queryParam && this.searchInput) {
+				this.searchQuery = queryParam;
+				this.searchInput.value = queryParam;
+			}
+
+			// Parse tags
+			const tagsParam = urlParams.get('tags');
+			if (tagsParam) {
+				const tags = tagsParam.split(',');
+				tags.forEach((tag) => {
+					if (this.allTags.includes(tag)) {
+						this.selectedTags.add(tag);
+					}
+				});
+				this.updateChips();
+			}
+
+			// Apply initial filter if URL had params
+			if (queryParam || tagsParam) {
+				this.filter();
+			}
 		}
 	}
 
-	searchInput?.addEventListener('input', (e) => {
-		search((e.target as HTMLInputElement).value);
-	});
-
-	searchInput?.addEventListener('focus', () => {
-		if (searchInput.value.trim()) {
-			search(searchInput.value);
-		}
-	});
-
-	document.addEventListener('click', (e) => {
-		if (!searchResults?.contains(e.target as Node) && e.target !== searchInput) {
-			searchResults?.classList.add('hidden');
-		}
-	});
-
-	document.addEventListener('keydown', (e) => {
-		if (e.key === 'Escape') {
-			searchResults?.classList.add('hidden');
-			searchInput?.blur();
-		}
-		if (e.key === '/' && document.activeElement !== searchInput) {
-			e.preventDefault();
-			searchInput?.focus();
-		}
+	// Initialize on DOM ready
+	document.addEventListener('DOMContentLoaded', () => {
+		new SearchController();
 	});
 </script>

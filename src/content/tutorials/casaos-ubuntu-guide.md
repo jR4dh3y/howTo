@@ -2,6 +2,8 @@
 title: "The No-BS Guide to Building Your First Home Server with Ubuntu and CasaOS"
 date: 2026-02-01
 description: "Turn an old laptop or mini PC into a powerful home server running your AI assistant, media server, password manager, and more using Ubuntu Server and CasaOS."
+tags: ["ubuntu", "casaos", "docker", "linux", "self-hosting"]
+# youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 ---
 
 So you have got an old laptop gathering dust in a drawer, or maybe a spare mini PC sitting in the closet. Instead of letting it rot, let us turn it into something actually useful - a home server that runs your own AI assistant, caches your Steam downloads, manages your passwords privately, and gives you a private cloud that Big Tech cannot snoop on.
