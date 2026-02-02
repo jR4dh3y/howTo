@@ -79,19 +79,7 @@ filteredHeadings.forEach((heading) => {
 	</nav>
 )}
 
-<style>
-	.toc a.active {
-		color: var(--highlight);
-	}
-	
-	.toc-toggle[aria-expanded="true"] svg {
-		transform: rotate(90deg);
-	}
-	
-	.toc-children.expanded {
-		display: block;
-	}
-</style>
+
 
 <script>
 	function initTOC() {
@@ -126,8 +114,9 @@ filteredHeadings.forEach((heading) => {
 			const group = groupMap.get(parentSlug);
 			if (group) {
 				group.toggle.setAttribute("aria-expanded", "true");
-				group.children.classList.add("expanded");
+				group.toggle.querySelector("svg")?.classList.add("rotate-90");
 				group.children.classList.remove("hidden");
+				group.children.classList.add("block");
 			}
 		}
 		
@@ -135,7 +124,8 @@ filteredHeadings.forEach((heading) => {
 			const group = groupMap.get(parentSlug);
 			if (group) {
 				group.toggle.setAttribute("aria-expanded", "false");
-				group.children.classList.remove("expanded");
+				group.toggle.querySelector("svg")?.classList.remove("rotate-90");
+				group.children.classList.remove("block");
 				group.children.classList.add("hidden");
 			}
 		}
@@ -176,7 +166,7 @@ filteredHeadings.forEach((heading) => {
 
 			links.forEach((link, index) => {
 				if (index === currentIndex) {
-					link.classList.add("active");
+					link.classList.add("text-[var(--highlight)]");
 					
 					// Auto-expand parent if this is a h3
 					const parentSlug = link.getAttribute("data-parent");
@@ -192,7 +182,7 @@ filteredHeadings.forEach((heading) => {
 						expandGroup(slug);
 					}
 				} else {
-					link.classList.remove("active");
+					link.classList.remove("text-[var(--highlight)]");
 				}
 			});
 			

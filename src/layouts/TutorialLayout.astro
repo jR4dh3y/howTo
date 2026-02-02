@@ -3,7 +3,7 @@ import BaseLayout from './BaseLayout.astro';
 import Header from '../components/Header.astro';
 import TableOfContents from '../components/TableOfContents.astro';
 import Giscus from '../components/Giscus.astro';
-import { Copy, Check } from '@lucide/astro';
+import { Copy, Check, ArrowLeft } from '@lucide/astro';
 import { extractVideoId, getEmbedUrl } from '../utils/youtube';
 
 interface Props {
@@ -33,9 +33,18 @@ const embedUrl = videoId ? getEmbedUrl(videoId) : null;
 			<div class="grid grid-cols-1 xl:grid-cols-[1fr_240px] gap-12">
 				<article class="min-w-0">
 					<header class="mb-10">
-						<time class="text-sm uppercase tracking-widest text-[var(--muted)] font-medium">
-							{formattedDate}
-						</time>
+						<div class="flex items-center gap-3 mb-2">
+							<a
+								href="/"
+								class="p-2 rounded-lg bg-[var(--surface)] border border-[var(--border)] text-[var(--fg)] transition-all duration-200 hover:border-[var(--accent)] hover:text-[var(--accent)]"
+								aria-label="Back to home"
+							>
+								<ArrowLeft class="w-4 h-4" />
+							</a>
+							<time class="text-sm uppercase tracking-widest text-[var(--muted)] font-medium">
+								{formattedDate}
+							</time>
+						</div>
 						<h1 class="text-4xl md:text-5xl mt-3 mb-4 text-[var(--accent)] text-balance leading-tight" style="font-family: var(--font-display);">
 							{title}
 						</h1>
@@ -85,42 +94,6 @@ const embedUrl = videoId ? getEmbedUrl(videoId) : null;
 	.prose h6 {
 		color: #c59edc !important;
 	}
-
-	/* Code block copy button styles */
-	.prose pre {
-		position: relative;
-	}
-
-	.prose pre .copy-button {
-		position: absolute;
-		top: 0.5rem;
-		right: 0.5rem;
-		padding: 0.5rem;
-		background: var(--border);
-		border: 1px solid var(--border);
-		border-radius: 0.375rem;
-		color: var(--muted);
-		cursor: pointer;
-		opacity: 0;
-		transition: opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.prose pre:hover .copy-button {
-		opacity: 1;
-	}
-
-	.prose pre .copy-button:hover {
-		background: var(--muted);
-		border-color: var(--muted);
-		color: var(--background);
-	}
-
-	.prose pre .copy-button.copied {
-		color: #22c55e;
-	}
 </style>
 
 <script>
@@ -131,8 +104,11 @@ const embedUrl = videoId ? getEmbedUrl(videoId) : null;
 		const checkTemplate = document.getElementById('check-icon-template') as HTMLTemplateElement | null;
 
 		codeBlocks.forEach((pre) => {
+			// Add relative positioning and group class to pre for hover effects
+			pre.classList.add('relative', 'group');
+			
 			const button = document.createElement('button');
-			button.className = 'copy-button';
+			button.className = 'copy-button absolute top-2 right-2 p-2 bg-[var(--border)] border border-[var(--border)] rounded-md text-[var(--muted)] cursor-pointer opacity-0 transition-all duration-200 hover:bg-[var(--muted)] hover:border-[var(--muted)] hover:text-[var(--background)] group-hover:opacity-100 flex items-center justify-center';
 			button.setAttribute('aria-label', 'Copy code');
 			
 			// Clone the copy icon from template
@@ -145,7 +121,7 @@ const embedUrl = videoId ? getEmbedUrl(videoId) : null;
 				if (code) {
 					try {
 						await navigator.clipboard.writeText(code.textContent || '');
-						button.classList.add('copied');
+						button.classList.add('text-green-500');
 						button.innerHTML = '';
 						
 						// Clone the check icon from template
@@ -156,7 +132,7 @@ const embedUrl = videoId ? getEmbedUrl(videoId) : null;
 						button.setAttribute('aria-label', 'Copied!');
 
 						setTimeout(() => {
-							button.classList.remove('copied');
+							button.classList.remove('text-green-500');
 							button.innerHTML = '';
 							
 							// Clone the copy icon from template

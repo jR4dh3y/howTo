@@ -53,55 +53,6 @@ const { showSearch = false, allTags = [] } = Astro.props;
 	</div>
 </header>
 
-<style>
-	.search-chip {
-		display: inline-flex;
-		align-items: center;
-		gap: 3px;
-		padding: 2px 3px 2px 5px;
-		font-size: 10px;
-		font-weight: 500;
-		line-height: 1;
-		border-radius: 3px;
-		background-color: var(--accent);
-		color: var(--bg);
-		white-space: nowrap;
-		max-width: 70px;
-		overflow: hidden;
-		border: 1px solid var(--highlight);
-	}
-
-	.search-chip span {
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-
-	.search-chip button {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 10px;
-		height: 10px;
-		border-radius: 2px;
-		background-color: transparent;
-		flex-shrink: 0;
-		opacity: 0.7;
-		transition: opacity 0.15s ease;
-	}
-
-	.search-chip button:hover {
-		opacity: 1;
-	}
-
-
-</style>
-
-<style is:global>
-	.search-highlight {
-		color: var(--highlight);
-		font-weight: 600;
-	}
-</style>
 
 <script>
 	interface Tutorial {
@@ -252,15 +203,15 @@ const { showSearch = false, allTags = [] } = Astro.props;
 			this.chipsContainer.innerHTML = Array.from(this.selectedTags)
 				.map(
 					(tag) => `
-					<span class="search-chip" data-tag="${tag}">
-						<span>${tag}</span>
-						<button type="button" aria-label="Remove ${tag} filter">
-							<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
-								<line x1="18" y1="6" x2="6" y2="18"></line>
-								<line x1="6" y1="6" x2="18" y2="18"></line>
-							</svg>
-						</button>
-					</span>
+							<span class="search-chip inline-flex items-center gap-[3px] px-[3px] py-[2px] pl-[5px] text-[10px] font-medium leading-none rounded-[3px] bg-[var(--accent)] text-[var(--bg)] whitespace-nowrap max-w-[70px] overflow-hidden border border-[var(--highlight)]" data-tag="${tag}">
+								<span class="overflow-hidden text-ellipsis">${tag}</span>
+								<button type="button" aria-label="Remove ${tag} filter" class="flex items-center justify-center w-[10px] h-[10px] rounded-[2px] bg-transparent flex-shrink-0 opacity-70 transition-opacity duration-150 hover:opacity-100">
+									<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+										<line x1="18" y1="6" x2="6" y2="18"></line>
+										<line x1="6" y1="6" x2="18" y2="18"></line>
+									</svg>
+								</button>
+							</span>
 				`
 				)
 				.join('');
@@ -284,7 +235,7 @@ const { showSearch = false, allTags = [] } = Astro.props;
 		highlightText(text: string, query: string): string {
 			if (!query.trim()) return text;
 			const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-			return text.replace(regex, '<span class="search-highlight">$1</span>');
+			return text.replace(regex, '<span class="text-[var(--highlight)] font-semibold">$1</span>');
 		}
 
 		filter() {
